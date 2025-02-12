@@ -1,0 +1,20 @@
+version: '3'
+
+tasks:
+  migrateCreate:
+    desc: "Create migration files"
+    cmds:
+      - goose -dir=migrations create {{ .name }} sql
+  migrateUp:
+    cmds:
+      - source .env && goose -dir=migrations postgres "postgres://$DB_USERNAME:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME?sslmode=disable" up
+  migrateDown:
+    cmds:
+      - source .env && goose -dir=migrations postgres "postgres://$DB_USERNAME:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME?sslmode=disable" down
+  migrateStatus:
+    cmds:
+      - source .env && goose -dir=migrations postgres "postgres://$DB_USERNAME:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME?sslmode=disable" status
+  vet:
+    go vet ./...
+  lint:
+    golangci-lint run
