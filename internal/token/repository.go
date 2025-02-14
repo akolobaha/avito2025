@@ -8,6 +8,7 @@ import (
 type Repository interface {
 	Save(token Token) error
 	Get(userID int) (*Token, error)
+	GetByToken(token string) (*Token, error)
 	Update(token Token) (*Token, error)
 }
 
@@ -33,6 +34,16 @@ func (r *tokenRepositoryImpl) Get(userID int) (*Token, error) {
 	var token Token
 	query := `SELECT jwt, user_id, is_active FROM "user_token" WHERE user_id = $1 AND is_active = true`
 	err := r.db.Get(&token, query, userID)
+	if err != nil {
+		return nil, err
+	}
+	return &token, nil
+}
+
+func (r *tokenRepositoryImpl) GetByToken(tkn string) (*Token, error) {
+	var token Token
+	query := `SELECT jwt, user_id, is_active FROM user_token WHERE jwt = $1 AND is_active = true`
+	err := r.db.Get(&token, query, tkn)
 	if err != nil {
 		return nil, err
 	}

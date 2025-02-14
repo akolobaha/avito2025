@@ -63,3 +63,12 @@ func GetByUserId(userId int) (*Token, error) {
 
 	return token, nil
 }
+
+func GetByToken(tokenStr string) (*Token, error) {
+	repo := NewTokenRepository()
+	token, err := repo.GetByToken(tokenStr)
+	if err != nil {
+		return nil, err
+	}
+	return token, nil
+}
