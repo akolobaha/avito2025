@@ -1,14 +1,14 @@
 package db
 
 import (
-	"database/sql"
 	"fmt"
+	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 	"log"
 	"os"
 )
 
-var DB *sql.DB
+var DB *sqlx.DB
 
 func Init() error {
 	err := godotenv.Load(".env")
@@ -20,7 +20,7 @@ func Init() error {
 		os.Getenv("DB_USERNAME"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT"),
 	)
 
-	DB, err = sql.Open("pgx", dsn)
+	DB, err = sqlx.Open("pgx", dsn)
 	if err != nil {
 		log.Println("Error opening database connection:", err)
 		return err

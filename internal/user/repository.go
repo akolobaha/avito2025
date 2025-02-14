@@ -2,40 +2,40 @@ package user
 
 import (
 	"avito2015/internal/db"
-	"database/sql"
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/jmoiron/sqlx"
 	"log"
 )
 
-type UserRepository interface {
-	Save(user string, password string) error
+type Repository interface {
+	Save(user string, password string) (int64, error)
 	FindByUsername(username string) (User, error)
 }
 
 type userRepositoryImpl struct {
-	db *sql.DB
+	db *sqlx.DB
 }
 
-func NewUserRepository() UserRepository {
+func NewUserRepository() Repository {
 	return &userRepositoryImpl{db: db.DB}
 }
 
-func (r *userRepositoryImpl) Save(user string, password string) error {
-	// Добавить логику хэширования пароля
+func (r *userRepositoryImpl) Save(user string, password string) (int64, error) {
+	query := `INSERT INTO "user" (username, password) VALUES ($1, $2) RETURNING id`
+	var lastInsertID int64
+	err := r.db.QueryRow(query, user, password).Scan(&lastInsertID)
 
-	query := `INSERT INTO "user" (username, password) VALUES ($1, $2)`
-	_, err := r.db.Exec(query, user, password)
 	if err != nil {
-		return err
+		return lastInsertID, err
 	}
 
-	return nil
+	return lastInsertID, nil
 }
 
 func (r *userRepositoryImpl) FindByUsername(username string) (User, error) {
 	var user User
-	query := `SELECT username, coins FROM "user" WHERE username = $1`
-	err := r.db.QueryRow(query, username).Scan(&user.Username, &user.Coins)
+	query := `SELECT id, username, coins, password, is_active, created_at FROM "user" WHERE username = $1`
+	err := r.db.Get(&user, query, username)
 	if err != nil {
 		log.Println("Error querying user by username:", err)
 		return User{}, err

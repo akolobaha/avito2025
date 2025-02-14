@@ -4,8 +4,8 @@ SELECT 'up SQL query';
 CREATE TABLE "user"
 (
     id         SERIAL PRIMARY KEY,
-    username   VARCHAR(255) NOT NULL UNIQUE,
-    password   VARCHAR(32) NOT NULL,
+    username   VARCHAR(255)                        NOT NULL UNIQUE,
+    password   VARCHAR(255)                        NOT NULL,
     coins      int       DEFAULT 1000              NOT NULL,
     is_active  BOOLEAN   DEFAULT TRUE              NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
@@ -13,12 +13,10 @@ CREATE TABLE "user"
 
 CREATE TABLE user_token
 (
-    id         SERIAL PRIMARY KEY,
-    user_id    int REFERENCES "user"(id) NOT NULL,
-    token      text                     NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    expires_at timestamp                NOT NULL,
-    revoked    BOOLEAN   DEFAULT FALSE
+    id        SERIAL PRIMARY KEY,
+    jwt       text                       NOT NULL,
+    user_id   int REFERENCES "user" (id) NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE
 );
 
 CREATE TABLE merch
@@ -44,16 +42,16 @@ VALUES ('t-shirt', 80),
 CREATE TABLE user_merch
 (
     id       SERIAL PRIMARY KEY,
-    user_id  INT REFERENCES "user"(id)  NOT NULL,
-    merch_id INT REFERENCES merch(id) NOT NULL
+    user_id  INT REFERENCES "user" (id) NOT NULL,
+    merch_id INT REFERENCES merch (id)  NOT NULL
 );
 
 CREATE TABLE coin_transfer
 (
     id           serial primary key,
-    user_id_from int references "user"(id) NOT NULL,
-    user_id_to   int references "user"(id) NOT NULL,
-    coins        int                      NOT NULL
+    user_id_from int references "user" (id) NOT NULL,
+    user_id_to   int references "user" (id) NOT NULL,
+    coins        int                        NOT NULL
 );
 
 

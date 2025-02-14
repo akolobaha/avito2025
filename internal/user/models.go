@@ -8,9 +8,10 @@ type AuthRequest struct {
 }
 
 type User struct {
-	Username  string
-	Password  string
-	Coins     int
-	IsActive  bool
-	CreatedAt time.Time
+	Id        int       `db:"id"`
+	Username  string    `db:"username"`
+	Password  string    `db:"password"`
+	Coins     int       `db:"coins"`
+	IsActive  bool      `db:"is_active"`
+	CreatedAt time.Time `db:"created_at"`
 }
