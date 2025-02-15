@@ -4,7 +4,6 @@ import (
 	"avito2015/internal/db"
 	"avito2015/internal/user"
 	"github.com/jmoiron/sqlx"
-	"log"
 )
 
 type Repository interface {
@@ -51,8 +50,6 @@ func (r *transferRepositoryImpl) FromUserToUser(from user.User, to user.User, am
 	if err = tx.Commit(); err != nil {
 		return err
 	}
-
-	log.Println("Транзакция успешно выполнена!")
 
 	return nil
 }

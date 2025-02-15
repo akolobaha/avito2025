@@ -2,10 +2,11 @@ package transfer
 
 import (
 	"avito2015/internal/user"
+	"database/sql"
 	"errors"
 )
 
-var ErrorNotEnoughMoney = errors.New("Not enough coins")
+var ErrorNotEnoughMoney = errors.New("not enough coins")
 
 type Service struct {
 	repo Repository
@@ -25,6 +26,9 @@ func (s *Service) SendCoins(from user.User, transferReq CoinTransferReq) error {
 	uRepo := user.NewUserRepository()
 	usrTo, err := uRepo.FindByUsername(transferReq.ToUser)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return errors.New("user not found")
+		}
 		return err
 	}
 

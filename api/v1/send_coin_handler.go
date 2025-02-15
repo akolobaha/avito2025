@@ -10,13 +10,13 @@ import (
 func SendCoinHandler(w http.ResponseWriter, r *http.Request) {
 	usr, ok := r.Context().Value("user").(*user.User)
 	if !ok {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		http.Error(w, "Unauthorized", 500)
 		return
 	}
 
 	transferReq := transfer.CoinTransferReq{}
 	if err := json.NewDecoder(r.Body).Decode(&transferReq); err != nil {
-		http.Error(w, err.Error(), 400)
+		jsonErrResp(w, err, 400)
 		return
 	}
 
@@ -25,12 +25,12 @@ func SendCoinHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := transferS.SendCoins(*usr, transferReq)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		jsonErrResp(w, err, 500)
 		return
 	}
 
 	resp := transfer.CoinTransferResp{}
 	resp.Message = "Send successfully"
 
-	renderJSON(w, resp)
+	jsonResp(w, resp)
 }
