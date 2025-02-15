@@ -64,3 +64,20 @@ func (uService *Service) CreateOrAuthUser(username string, password string) (*to
 
 	return nil, InvalidPasswordError
 }
+
+func (uService *Service) GetByUsername(username string) (*User, error) {
+	user, err := uService.repo.FindByUsername(username)
+	if err != nil {
+	}
+	return &user, nil
+}
+
+func (uService *Service) GetUserAndTokenByJwt(tokenStr string) (*token.Token, *User, error) {
+	repo := NewUserRepository()
+
+	tkn, usr, err := repo.GetByToken(tokenStr)
+	if err != nil {
+		return nil, nil, err
+	}
+	return tkn, usr, nil
+}

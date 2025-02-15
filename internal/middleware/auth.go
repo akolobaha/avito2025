@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"avito2015/internal/token"
+	"avito2015/internal/user"
 	"context"
 	"net/http"
 	"strings"
@@ -23,7 +24,9 @@ func Auth(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		tokenModel, err := token.GetByToken(parts[1])
+		uRepo := user.NewUserRepository()
+		uService := user.NewUserService(uRepo)
+		tokenModel, usrModel, err := uService.GetUserAndTokenByJwt(parts[1])
 		if err != nil {
 			http.Error(w, "Token does not exists", http.StatusUnauthorized)
 			return
@@ -32,16 +35,13 @@ func Auth(next http.HandlerFunc) http.HandlerFunc {
 		_, err = token.ValidateToken(tokenModel.Jwt)
 		if err != nil {
 			http.Error(w, "Invalid token", http.StatusUnauthorized)
+			return
 		}
 
 		ctx := context.WithValue(r.Context(), "token", tokenModel)
+		ctx = context.WithValue(ctx, "user", usrModel)
 		r = r.WithContext(ctx)
 
 		next.ServeHTTP(w, r)
 	}
 }
-
-// TODO: Bind user model to context
-//func BindUserToContext(next http.HandlerFunc) http.HandlerFunc {
-//
-//}
