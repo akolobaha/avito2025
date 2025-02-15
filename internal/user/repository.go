@@ -36,7 +36,7 @@ func (r *userRepositoryImpl) Save(user string, password string) (int64, error) {
 
 func (r *userRepositoryImpl) FindByUsername(username string) (User, error) {
 	var user User
-	query := `SELECT id, username, coins, password, is_active, created_at FROM "user" WHERE username = $1`
+	query := `SELECT id, username, coins, password, created_at FROM "user" WHERE username = $1`
 	err := r.db.Get(&user, query, username)
 	if err != nil {
 		log.Println("Error querying user by username:", err)
@@ -51,7 +51,7 @@ func (r *userRepositoryImpl) GetByToken(tkn string) (*token.Token, *User, error)
 	var usr User
 	query := `
   SELECT ut.jwt, ut.user_id, ut.is_active, 
-         u.id, u.username, u.password, u.coins, u.is_active, u.created_at 
+         u.id, u.username, u.password, u.coins, u.created_at 
   FROM user_token ut 
   JOIN public."user" u ON u.id = ut.user_id 
   WHERE ut.jwt = $1 AND ut.is_active = true
@@ -64,7 +64,6 @@ func (r *userRepositoryImpl) GetByToken(tkn string) (*token.Token, *User, error)
 		&usr.Username,
 		&usr.Password,
 		&usr.Coins,
-		&usr.IsActive,
 		&usr.CreatedAt,
 	)
 	if err != nil {
