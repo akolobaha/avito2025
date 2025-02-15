@@ -34,7 +34,8 @@ func Auth(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		_, err = token.ValidateToken(tokenModel.Jwt)
+		s := token.NewService(nil)
+		_, err = s.ValidateToken(tokenModel.Jwt)
 		if err != nil {
 			jsonresponse.Error(w, err, http.StatusUnauthorized)
 			return

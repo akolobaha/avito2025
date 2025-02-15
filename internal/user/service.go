@@ -20,49 +20,55 @@ func NewUserService(repo Repository) *Service {
 
 func (uService *Service) CreateOrAuthUser(username string, password string) (*token.Token, error) {
 	user, err := uService.repo.FindByUsername(username)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return nil, err // Обработка ошибки, если не связано с отсутствием пользователя
+	}
+
 	salt := os.Getenv("SALT")
 	passwordHash := hasher.HashString(password + salt)
 
-	// Создаем нового
 	if errors.Is(err, sql.ErrNoRows) {
-		userId, err := uService.repo.Save(username, passwordHash)
-
-		if err != nil {
-			return nil, err
-		}
-
-		token, err := token.SaveToken(userId)
-		if err != nil {
-			return nil, err
-		}
-
-		return token, nil
+		return uService.createUser(username, passwordHash)
 	}
 
-	// Авторизуем существующего
-	if user.Password == passwordHash {
-		tokenRepo := token.NewTokenRepository()
-		tokenModel, err := token.GetByUserId(user.Id)
+	return uService.authUser(user, passwordHash)
+}
 
-		_, err = token.ValidateToken(tokenModel.Jwt)
-
-		if err != nil {
-			// Инвалидируем старые токен
-			tokenModel.IsActive = false
-			_, err := tokenRepo.Update(*tokenModel)
-			if err != nil {
-				return nil, err
-			}
-
-			// Создаем новый
-			tkn, err := token.SaveToken(int64(user.Id))
-			return tkn, nil
-		}
-
-		return tokenModel, nil
+func (uService *Service) createUser(username string, passwordHash string) (*token.Token, error) {
+	userId, err := uService.repo.Save(username, passwordHash)
+	if err != nil {
+		return nil, err
 	}
 
-	return nil, InvalidPasswordError
+	tRepo := token.NewTokenRepository()
+	tService := token.NewService(tRepo)
+
+	return tService.SaveToken(userId)
+}
+
+func (uService *Service) authUser(user User, passwordHash string) (*token.Token, error) {
+	if user.Password != passwordHash {
+		return nil, InvalidPasswordError
+	}
+
+	tRepo := token.NewTokenRepository()
+	tService := token.NewService(tRepo)
+
+	tokenModel, err := tService.GetByUserId(user.Id)
+	if errors.Is(err, sql.ErrNoRows) {
+		return tService.SaveToken(int64(user.Id))
+	}
+
+	_, err = tService.ValidateToken(tokenModel.Jwt)
+	if err != nil {
+		tokenModel.IsActive = false
+		if _, err := tRepo.Update(*tokenModel); err != nil {
+			return nil, err
+		}
+		return tService.SaveToken(int64(user.Id))
+	}
+
+	return tokenModel, nil
 }
 
 func (uService *Service) GetByUsername(username string) (*User, error) {

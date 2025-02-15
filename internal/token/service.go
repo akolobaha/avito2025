@@ -9,6 +9,14 @@ import (
 
 var tokenExpPeriod time.Duration = 24 * time.Hour
 
+type Service struct {
+	repo Repository
+}
+
+func NewService(repo Repository) *Service {
+	return &Service{repo: repo}
+}
+
 func generateToken(userId int64) (string, error) {
 	expirationTime := time.Now().Add(tokenExpPeriod)
 	claims := &Claims{
@@ -23,7 +31,7 @@ func generateToken(userId int64) (string, error) {
 	return token.SignedString([]byte(os.Getenv("TOKEN_SECRET")))
 }
 
-func ValidateToken(tokenString string) (*Claims, error) {
+func (s *Service) ValidateToken(tokenString string) (*Claims, error) {
 	claims := &Claims{}
 	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(os.Getenv("TOKEN_SECRET")), nil
@@ -36,8 +44,9 @@ func ValidateToken(tokenString string) (*Claims, error) {
 	return claims, nil
 }
 
-func SaveToken(userId int64) (*Token, error) {
+func (s *Service) SaveToken(userId int64) (*Token, error) {
 	var token Token
+
 	jwtStr, err := generateToken(userId)
 	if err != nil {
 		return nil, err
@@ -46,15 +55,14 @@ func SaveToken(userId int64) (*Token, error) {
 	token.UserId = userId
 	token.IsActive = true
 
-	repo := NewTokenRepository()
-	err = repo.Save(token)
+	err = s.repo.Save(token)
 	if err != nil {
 		return nil, err
 	}
 	return &token, nil
 }
 
-func GetByUserId(userId int) (*Token, error) {
+func (s *Service) GetByUserId(userId int) (*Token, error) {
 	repo := NewTokenRepository()
 	token, err := repo.Get(userId)
 	if err != nil {
