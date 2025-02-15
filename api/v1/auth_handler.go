@@ -2,6 +2,7 @@ package httphandler
 
 import (
 	"avito2015/internal/user"
+	"avito2015/pkg/jsonresponse"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -24,9 +25,9 @@ func AuthHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), 403)
 			return
 		}
-		jsonErrResp(w, err, 400)
+		jsonresponse.Error(w, err, 400)
 		return
 	}
 
-	jsonResp(w, token)
+	jsonresponse.StatusOK(w, token)
 }

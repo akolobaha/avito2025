@@ -3,6 +3,7 @@ package httphandler
 import (
 	"avito2015/internal/merch"
 	"avito2015/internal/user"
+	"avito2015/pkg/jsonresponse"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -21,11 +22,11 @@ func BuyItemHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := mService.Buy(usr, merchName)
 	if err != nil {
-		jsonErrResp(w, err, http.StatusOK)
+		jsonresponse.Error(w, err, http.StatusOK)
 		return
 	}
 
-	jsonResp(w, MessageResp{
-		"success",
+	jsonresponse.StatusOK(w, jsonresponse.MessageResp{
+		Message: "success",
 	})
 }

@@ -1,4 +1,4 @@
-package httphandler
+package jsonresponse
 
 import (
 	"encoding/json"
@@ -9,7 +9,7 @@ type MessageResp struct {
 	Message string `json:"message"`
 }
 
-func jsonResp(w http.ResponseWriter, v interface{}) {
+func StatusOK(w http.ResponseWriter, v interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(v); err != nil {
@@ -17,7 +17,7 @@ func jsonResp(w http.ResponseWriter, v interface{}) {
 	}
 }
 
-func jsonErrResp(w http.ResponseWriter, err error, statusCode int) {
+func Error(w http.ResponseWriter, err error, statusCode int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 
