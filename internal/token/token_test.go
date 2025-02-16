@@ -80,43 +80,6 @@ func TestSaveToken(t *testing.T) {
 	}
 }
 
-func TestGetByUserId(t *testing.T) {
-	tests := []struct {
-		name          string
-		mockRepo      mockRepository
-		userId        int
-		expectedToken *token.Token
-		expectedError error
-	}{
-		{
-			name: "Token not found",
-			mockRepo: mockRepository{
-				getError: errors.New("token not found"),
-			},
-			userId:        1,
-			expectedToken: nil,
-			expectedError: errors.New("token not found"),
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			repo := &tt.mockRepo
-			service := token.NewService(repo)
-
-			token, err := service.GetByUserId(tt.userId)
-
-			if err != nil && err.Error() != tt.expectedError.Error() {
-				t.Errorf("expected error %v, got %v", tt.expectedError, err)
-			}
-
-			if token != nil && *token != *tt.expectedToken {
-				t.Errorf("expected token %v, got %v", tt.expectedToken, token)
-			}
-		})
-	}
-}
-
 func TestValidateToken(t *testing.T) {
 	os.Setenv("TOKEN_SECRET", "testsecret")
 

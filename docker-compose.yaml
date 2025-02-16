@@ -3,12 +3,33 @@ version: '3.8'
 services:
   db:
     image: postgres:latest
-    container_name: merch-db
+    container_name: db-merch
     environment:
-      POSTGRES_DB: ${POSTGRES_DATABASE}
-      POSTGRES_USER: ${POSTGRES_USERNAME}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: merch
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     ports:
-      - 5432:5432
+      - "5432:5432"
     volumes:
       - ./docker/pgdata:/var/lib/postgresql/data
+  app:
+    image: golang:latest
+    container_name: app-merch
+    working_dir: /app
+    volumes:
+      - .:/app
+    ports:
+      - "8080:8080"
+    command: go run cmd/main.go
+    environment:
+      DB_USERNAME: "postgres"
+      DB_PASSWORD: "postgres"
+      DB_HOST: "db"
+      DB_PORT: "5432"
+      DB_NAME: "merch"
+      TOKEN_SECRET: "myAwesomeTokenSecret"
+      SALT: "mySalt"
+    depends_on:
+      - db
+    links:
+      - db
