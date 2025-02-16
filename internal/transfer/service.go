@@ -1,6 +1,7 @@
 package transfer
 
 import (
+	"avito2015/internal/db"
 	"avito2015/internal/user"
 	"database/sql"
 	"errors"
@@ -9,11 +10,12 @@ import (
 var ErrorNotEnoughMoney = errors.New("not enough coins")
 
 type Service struct {
-	repo Repository
+	repo     Repository
+	userRepo user.Repository
 }
 
-func NewTransferService(repo Repository) *Service {
-	return &Service{repo: repo}
+func NewTransferService(userRepo user.Repository, repo Repository) *Service {
+	return &Service{userRepo: userRepo, repo: repo}
 }
 
 func (s *Service) SendCoins(from user.User, transferReq CoinTransferReq) error {
@@ -23,7 +25,7 @@ func (s *Service) SendCoins(from user.User, transferReq CoinTransferReq) error {
 	}
 
 	// Отдельным запросом получим пользователя из CoinTransferReq
-	uRepo := user.NewUserRepository()
+	uRepo := user.NewUserRepository(db.DB)
 	usrTo, err := uRepo.FindByUsername(transferReq.ToUser)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -33,7 +35,7 @@ func (s *Service) SendCoins(from user.User, transferReq CoinTransferReq) error {
 	}
 
 	// Транзакция отправки монет
-	r := NewTransferRepository()
+	r := NewTransferRepository(db.DB)
 	err = r.FromUserToUser(from, usrTo, transferReq.Amount)
 	if err != nil {
 		return err

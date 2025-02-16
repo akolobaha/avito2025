@@ -1,7 +1,6 @@
 package user
 
 import (
-	"avito2015/internal/db"
 	"avito2015/internal/token"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
@@ -18,8 +17,8 @@ type userRepositoryImpl struct {
 	db *sqlx.DB
 }
 
-func NewUserRepository() Repository {
-	return &userRepositoryImpl{db: db.DB}
+func NewUserRepository(db *sqlx.DB) Repository {
+	return &userRepositoryImpl{db: db}
 }
 
 func (r *userRepositoryImpl) Save(user string, password string) (int64, error) {

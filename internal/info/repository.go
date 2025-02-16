@@ -1,7 +1,6 @@
 package info
 
 import (
-	"avito2015/internal/db"
 	"avito2015/internal/user"
 	"github.com/jmoiron/sqlx"
 )
@@ -16,8 +15,8 @@ type infoRepositoryImpl struct {
 	db *sqlx.DB
 }
 
-func NewInfoRepository() Repository {
-	return &infoRepositoryImpl{db: db.DB}
+func NewInfoRepository(db *sqlx.DB) Repository {
+	return &infoRepositoryImpl{db: db}
 }
 
 func (r *infoRepositoryImpl) GetMerchGroupedByItems(usr *user.User) ([]InventoryItem, error) {

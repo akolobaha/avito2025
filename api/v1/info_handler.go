@@ -1,6 +1,7 @@
 package httphandler
 
 import (
+	"avito2015/internal/db"
 	"avito2015/internal/info"
 	"avito2015/internal/user"
 	"avito2015/pkg/jsonresponse"
@@ -15,7 +16,7 @@ func InfoHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	repo := info.NewInfoRepository()
+	repo := info.NewInfoRepository(db.DB)
 	s := info.NewInfoService(repo)
 
 	infoR, err := s.Get(usr)

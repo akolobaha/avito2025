@@ -1,7 +1,6 @@
 package transfer
 
 import (
-	"avito2015/internal/db"
 	"avito2015/internal/user"
 	"github.com/jmoiron/sqlx"
 )
@@ -14,8 +13,8 @@ type transferRepositoryImpl struct {
 	db *sqlx.DB
 }
 
-func NewTransferRepository() Repository {
-	return &transferRepositoryImpl{db: db.DB}
+func NewTransferRepository(db *sqlx.DB) Repository {
+	return &transferRepositoryImpl{db: db}
 }
 
 func (r *transferRepositoryImpl) FromUserToUser(from user.User, to user.User, amount int) error {

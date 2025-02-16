@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"avito2015/internal/db"
 	"avito2015/internal/token"
 	"avito2015/internal/user"
 	"avito2015/pkg/jsonresponse"
@@ -26,7 +27,7 @@ func Auth(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		uRepo := user.NewUserRepository()
+		uRepo := user.NewUserRepository(db.DB)
 		uService := user.NewUserService(uRepo)
 		tokenModel, usrModel, err := uService.GetUserAndTokenByJwt(parts[1])
 		if err != nil {

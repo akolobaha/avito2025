@@ -1,6 +1,7 @@
 package user
 
 import (
+	"avito2015/internal/db"
 	"avito2015/internal/token"
 	"avito2015/pkg/hasher"
 	"database/sql"
@@ -79,7 +80,7 @@ func (uService *Service) GetByUsername(username string) (*User, error) {
 }
 
 func (uService *Service) GetUserAndTokenByJwt(tokenStr string) (*token.Token, *User, error) {
-	repo := NewUserRepository()
+	repo := NewUserRepository(db.DB)
 
 	tkn, usr, err := repo.GetByToken(tokenStr)
 	if err != nil {

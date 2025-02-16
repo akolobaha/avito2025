@@ -1,6 +1,7 @@
 package httphandler
 
 import (
+	"avito2015/internal/db"
 	"avito2015/internal/user"
 	"avito2015/pkg/jsonresponse"
 	"encoding/json"
@@ -16,7 +17,7 @@ func AuthHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 400)
 	}
 
-	repo := user.NewUserRepository()
+	repo := user.NewUserRepository(db.DB)
 	s := user.NewUserService(repo)
 
 	token, err := s.CreateOrAuthUser(userReq.Username, userReq.Password)

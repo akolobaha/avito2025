@@ -1,6 +1,7 @@
 package httphandler
 
 import (
+	"avito2015/internal/db"
 	"avito2015/internal/transfer"
 	"avito2015/internal/user"
 	"avito2015/pkg/jsonresponse"
@@ -22,8 +23,9 @@ func SendCoinHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	transferR := transfer.NewTransferRepository()
-	transferS := transfer.NewTransferService(transferR)
+	transferR := transfer.NewTransferRepository(db.DB)
+	userR := user.NewUserRepository(db.DB)
+	transferS := transfer.NewTransferService(userR, transferR)
 
 	err := transferS.SendCoins(*usr, transferReq)
 	if err != nil {

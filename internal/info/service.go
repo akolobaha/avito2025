@@ -19,6 +19,9 @@ func (s *Service) Get(user *user.User) (Resp, error) {
 		return Resp{}, err
 	}
 	tSent, err := s.repo.GetTransactionsSent(user)
+	if err != nil {
+		return Resp{}, err
+	}
 	tReceived, err := s.repo.GetTransactionsReceive(user)
 
 	if err != nil {

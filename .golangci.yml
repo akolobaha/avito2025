@@ -1,0 +1,28 @@
+linters:
+  enable:
+    - errcheck
+    - staticcheck
+    - unused
+    - misspell
+    - gocyclo
+    - gofmt
+    - gosec
+    - lll
+    - typecheck
+
+run:
+  tests: true
+
+
+issues:
+  exclude-use-default: false
+  exclude-dirs:
+    - vendor
+    - docker
+    - lib/
+    - go/pkg/mod
+  exclude:
+    - "Error return value is not checked"
+    - "Error return value is ignored"
+    - "should not use dot imports"
+
