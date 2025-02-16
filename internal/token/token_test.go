@@ -2,7 +2,10 @@ package token_test
 
 import (
 	"errors"
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/DATA-DOG/go-sqlmock"
+	jwt "github.com/golang-jwt/jwt/v4"
+	"github.com/jmoiron/sqlx"
+	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
 
@@ -150,4 +153,33 @@ func claimsEqual(a, b *token.Claims) bool {
 		return false
 	}
 	return true
+}
+
+func TestGet(t *testing.T) {
+	// Create a mock DB connection
+	dbMock, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("error creating mock DB: %v", err)
+	}
+	defer dbMock.Close()
+
+	// Initialize the repository with the mock DB
+	sqlxDB := sqlx.NewDb(dbMock, "pgx")
+	repo := token.NewTokenRepository(sqlxDB)
+
+	// Define the expected SQL query and mock the response
+	mock.ExpectQuery(`SELECT jwt, user_id, is_active FROM "user_token" WHERE user_id = \$1 AND is_active = true`).
+		WithArgs(1). // Pass the user ID
+		WillReturnRows(sqlmock.NewRows([]string{"jwt", "user_id", "is_active"}).
+			AddRow("mock-jwt-token", 1, true)) // Mock token data
+
+	// Call the Get method
+	token, err := repo.Get(1)
+
+	// Assertions
+	assert.NoError(t, err)                        // No error should occur
+	assert.NotNil(t, token)                       // The returned token should not be nil
+	assert.Equal(t, "mock-jwt-token", token.Jwt)  // The token should match the mock token
+	assert.Equal(t, int64(1), token.UserId)       // The user ID should match the mock user ID
+	assert.NoError(t, mock.ExpectationsWereMet()) // Ensure all expectations were met
 }

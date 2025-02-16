@@ -11,7 +11,3 @@ func HashString(input string) string {
 	hash := h.Sum(nil)
 	return hex.EncodeToString(hash)
 }
-
-func ValidateHash(input, hashed string) bool {
-	return HashString(input) == hashed
-}

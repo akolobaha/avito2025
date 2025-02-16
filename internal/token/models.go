@@ -1,6 +1,6 @@
 package token
 
-import "github.com/golang-jwt/jwt/v4"
+import jwt "github.com/golang-jwt/jwt/v4"
 
 type Token struct {
 	Jwt      string `json:"token" db:"jwt"`

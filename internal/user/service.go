@@ -41,7 +41,7 @@ func (uService *Service) createUser(username string, passwordHash string) (*toke
 		return nil, err
 	}
 
-	tRepo := token.NewTokenRepository()
+	tRepo := token.NewTokenRepository(db.DB)
 	tService := token.NewService(tRepo)
 
 	return tService.SaveToken(userId)
@@ -52,7 +52,7 @@ func (uService *Service) authUser(user User, passwordHash string) (*token.Token,
 		return nil, InvalidPasswordError
 	}
 
-	tRepo := token.NewTokenRepository()
+	tRepo := token.NewTokenRepository(db.DB)
 	tService := token.NewService(tRepo)
 
 	tokenModel, err := tService.GetByUserId(user.Id)

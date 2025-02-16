@@ -1,7 +1,6 @@
 package merch
 
 import (
-	"avito2015/internal/db"
 	"avito2015/internal/user"
 	"github.com/jmoiron/sqlx"
 )
@@ -55,6 +54,6 @@ func (m merchRepositoryImpl) Buy(usr *user.User, merch *Merch) error {
 	return nil
 }
 
-func NewMerchRepository() Repository {
-	return &merchRepositoryImpl{db: db.DB}
+func NewMerchRepository(db *sqlx.DB) Repository {
+	return &merchRepositoryImpl{db: db}
 }

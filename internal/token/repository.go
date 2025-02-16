@@ -15,8 +15,8 @@ type tokenRepositoryImpl struct {
 	db *sqlx.DB
 }
 
-func NewTokenRepository() Repository {
-	return &tokenRepositoryImpl{db: db.DB}
+func NewTokenRepository(db *sqlx.DB) Repository {
+	return &tokenRepositoryImpl{db: db}
 }
 
 func (r *tokenRepositoryImpl) Save(token Token) error {

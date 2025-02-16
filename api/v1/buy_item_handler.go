@@ -1,6 +1,7 @@
 package httphandler
 
 import (
+	"avito2015/internal/db"
 	"avito2015/internal/merch"
 	"avito2015/internal/user"
 	"avito2015/pkg/jsonresponse"
@@ -17,7 +18,7 @@ func BuyItemHandler(w http.ResponseWriter, r *http.Request) {
 
 	merchName := mux.Vars(r)["item"]
 
-	mRepo := merch.NewMerchRepository()
+	mRepo := merch.NewMerchRepository(db.DB)
 	mService := merch.NewService(mRepo)
 
 	err := mService.Buy(usr, merchName)

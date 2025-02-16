@@ -9,7 +9,10 @@ import (
 )
 
 func main() {
-	db.Init()
+	err := db.Init()
+	if err != nil {
+		panic("db init error")
+	}
 	defer db.DB.Close()
 
 	r := mux.NewRouter()
@@ -18,7 +21,7 @@ func main() {
 	r.HandleFunc("/api/info", middleware.Auth(httphandler.InfoHandler)).Methods("GET")
 	r.HandleFunc("/api/buy/{item}", middleware.Auth(httphandler.BuyItemHandler)).Methods("GET")
 
-	err := http.ListenAndServe(":8080", r)
+	err = http.ListenAndServe(":8080", r)
 	if err != nil {
 		return
 	}

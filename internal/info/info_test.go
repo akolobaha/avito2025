@@ -2,6 +2,9 @@ package info_test
 
 import (
 	"errors"
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/jmoiron/sqlx"
+	"github.com/stretchr/testify/assert"
 	"testing"
 
 	"avito2015/internal/info"
@@ -152,4 +155,109 @@ func TestGet(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestGetMerchGroupedByItems(t *testing.T) {
+	// Create a mock DB connection
+	dbMock, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("error creating mock DB: %v", err)
+	}
+	defer dbMock.Close()
+
+	// Create the info repository with the mock DB
+	sqlxDB := sqlx.NewDb(dbMock, "pgx")
+	repo := info.NewInfoRepository(sqlxDB)
+
+	// Define the expected SQL query and mock the response
+	mock.ExpectQuery(`SELECT m.name, count\(merch_id\) FROM user_merch JOIN public.merch m on m.id = user_merch.merch_id WHERE user_merch.user_id = \$1 GROUP BY merch_id, m.name`).
+		WithArgs(1). // Mock user_id = 1
+		WillReturnRows(sqlmock.NewRows([]string{"name", "count"}).
+			AddRow("T-shirt", 2). // Mock item "T-shirt" with 2 counts
+			AddRow("Sweater", 1)) // Mock item "Sweater" with 1 count
+
+	// Define a user
+	usr := &user.User{Id: 1}
+
+	// Call the GetMerchGroupedByItems method
+	items, err := repo.GetMerchGroupedByItems(usr)
+
+	// Assertions
+	assert.NoError(t, err)  // No error should occur
+	assert.Len(t, items, 2) // Two items should be returned
+	//assert.Equal(t, "T-shirt", items[0].Name)     // The first item should be "T-shirt"
+	//assert.Equal(t, 2, items[0].Count)            // The count for "T-shirt" should be 2
+	//assert.Equal(t, "Sweater", items[1].Name)     // The second item should be "Sweater"
+	//assert.Equal(t, 1, items[1].Count)            // The count for "Sweater" should be 1
+	assert.NoError(t, mock.ExpectationsWereMet()) // Ensure all expectations were met
+}
+
+func TestGetTransactionsSent(t *testing.T) {
+	// Create a mock DB connection
+	dbMock, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("error creating mock DB: %v", err)
+	}
+	defer dbMock.Close()
+
+	// Create the info repository with the mock DB
+	sqlxDB := sqlx.NewDb(dbMock, "pgx")
+	repo := info.NewInfoRepository(sqlxDB)
+
+	// Define the expected SQL query and mock the response
+	mock.ExpectQuery(`SELECT u.username, coin_transfer.coins FROM coin_transfer JOIN "user" u on coin_transfer.user_id_to = u.id WHERE coin_transfer.user_id_from = \$1`).
+		WithArgs(1). // Mock user_id = 1
+		WillReturnRows(sqlmock.NewRows([]string{"username", "coins"}).
+			AddRow("user2", 50). // Mock transaction to "user2" with 50 coins
+			AddRow("user3", 20)) // Mock transaction to "user3" with 20 coins
+
+	// Define a user
+	usr := &user.User{Id: 1}
+
+	// Call the GetTransactionsSent method
+	transactions, err := repo.GetTransactionsSent(usr)
+
+	// Assertions
+	assert.NoError(t, err)         // No error should occur
+	assert.Len(t, transactions, 2) // Two transactions should be returned
+	//assert.Equal(t, "user2", transactions[0].Username) // The first transaction should be to "user2"
+	//assert.Equal(t, 50, transactions[0].Coins)         // The coin amount should be 50
+	//assert.Equal(t, "user3", transactions[1].Username) // The second transaction should be to "user3"
+	//assert.Equal(t, 20, transactions[1].Coins)         // The coin amount should be 20
+	assert.NoError(t, mock.ExpectationsWereMet()) // Ensure all expectations were met
+}
+
+func TestGetTransactionsReceive(t *testing.T) {
+	// Create a mock DB connection
+	dbMock, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("error creating mock DB: %v", err)
+	}
+	defer dbMock.Close()
+
+	// Create the info repository with the mock DB
+	sqlxDB := sqlx.NewDb(dbMock, "pgx")
+	repo := info.NewInfoRepository(sqlxDB)
+
+	// Define the expected SQL query and mock the response
+	mock.ExpectQuery(`SELECT u.username, coin_transfer.coins FROM coin_transfer JOIN "user" u on coin_transfer.user_id_from = u.id WHERE coin_transfer.user_id_to = \$1`).
+		WithArgs(1). // Mock user_id = 1
+		WillReturnRows(sqlmock.NewRows([]string{"username", "coins"}).
+			AddRow("user4", 30). // Mock transaction from "user4" with 30 coins
+			AddRow("user5", 60)) // Mock transaction from "user5" with 60 coins
+
+	// Define a user
+	usr := &user.User{Id: 1}
+
+	// Call the GetTransactionsReceive method
+	transactions, err := repo.GetTransactionsReceive(usr)
+
+	// Assertions
+	assert.NoError(t, err)         // No error should occur
+	assert.Len(t, transactions, 2) // Two transactions should be returned
+	//assert.Equal(t, "user4", transactions[0].Username) // The first transaction should be from "user4"
+	//assert.Equal(t, 30, transactions[0].Coins)         // The coin amount should be 30
+	//assert.Equal(t, "user5", transactions[1].Username) // The second transaction should be from "user5"
+	//assert.Equal(t, 60, transactions[1].Coins)         // The coin amount should be 60
+	assert.NoError(t, mock.ExpectationsWereMet()) // Ensure all expectations were met
 }

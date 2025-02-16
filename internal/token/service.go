@@ -1,7 +1,8 @@
 package token
 
 import (
-	"github.com/golang-jwt/jwt/v4"
+	"avito2015/internal/db"
+	jwt "github.com/golang-jwt/jwt/v4"
 	"os"
 	"strconv"
 	"time"
@@ -63,7 +64,7 @@ func (s *Service) SaveToken(userId int64) (*Token, error) {
 }
 
 func (s *Service) GetByUserId(userId int) (*Token, error) {
-	repo := NewTokenRepository()
+	repo := NewTokenRepository(db.DB)
 	token, err := repo.Get(userId)
 	if err != nil {
 		return nil, err
