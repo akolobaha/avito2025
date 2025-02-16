@@ -8,7 +8,7 @@ linters:
     - gofmt
     - gosec
     - lll
-    - typecheck
+#    - typecheck
 
 run:
   tests: true

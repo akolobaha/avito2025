@@ -2,7 +2,7 @@ package info_test
 
 import (
 	"errors"
-	"github.com/DATA-DOG/go-sqlmock"
+	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 	"testing"

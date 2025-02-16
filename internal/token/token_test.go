@@ -2,7 +2,7 @@ package token_test
 
 import (
 	"errors"
-	"github.com/DATA-DOG/go-sqlmock"
+	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	jwt "github.com/golang-jwt/jwt/v4"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"

@@ -3,7 +3,7 @@ package transfer
 import (
 	"avito2015/internal/db"
 	"avito2015/internal/user"
-	"github.com/DATA-DOG/go-sqlmock"
+	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 	"testing"
